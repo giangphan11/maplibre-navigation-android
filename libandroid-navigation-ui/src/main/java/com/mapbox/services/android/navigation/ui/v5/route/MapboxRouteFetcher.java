@@ -1,7 +1,9 @@
 package com.mapbox.services.android.navigation.ui.v5.route;
 
+import android.app.Activity;
 import android.content.Context;
 import android.location.Location;
+import android.os.Handler;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -64,7 +66,7 @@ public class MapboxRouteFetcher extends RouteFetcher {
     public void findRouteFromRouteProgress(Location location, RouteProgress routeProgress) {
         this.routeProgress = routeProgress;
         NavigationRoute.Builder builder = buildRequest(location, routeProgress);
-        findRouteWith(builder);
+        findRouteWith(builder, location, routeProgress);
     }
 
     @Nullable
@@ -156,11 +158,82 @@ public class MapboxRouteFetcher extends RouteFetcher {
      *
      * @param builder to be executed
      */
-    public void findRouteWith(NavigationRoute.Builder builder) {
-        if (builder != null) {
-            navigationRoute = builder.build();
-            navigationRoute.getRoute(directionsResponseCallback);
+    public void findRouteWith(NavigationRoute.Builder builder, Location location, RouteProgress routeProgress) {
+        try {
+            if (this.routeProgress == null) {
+                this.routeProgress = routeProgress;
+            }
+
+            if (builder != null) {
+                //navigationRoute = builder.build();
+                //navigationRoute.getRoute(directionsResponseCallback);
+                ValhallaClient valhallaClient = new ValhallaClient();
+                RouteOptions options = routeProgress.directionsRoute().routeOptions();
+                valhallaClient.makeRequest((response -> {
+                    // Get a handler that can be used to post to the main thread
+                    Handler mainHandler = new Handler(contextWeakReference.get().getMainLooper());
+
+                    Runnable myRunnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            DirectionsResponse maplibreResponse = DirectionsResponse.fromJson(response);
+                            DirectionsRoute _Origin = maplibreResponse.routes().get(0);
+                            DirectionsRoute route = DirectionsRoute.builder()
+                                    .distance(_Origin.distance())
+                                    .duration(_Origin.duration())
+                                    .legs(_Origin.legs())
+                                    .geometry(_Origin.geometry())
+                                    .weight(_Origin.weight())
+                                    .weightName(_Origin.weightName())
+                                    .routeOptions(
+                                            RouteOptions.builder()
+                                                    .baseUrl(options.baseUrl())
+                                                    .user(options.user())
+                                                    .profile(options.profile())
+                                                    .coordinates(
+                                                            Arrays.asList(
+                                                                    Point.fromLngLat(location.getLongitude(), location.getLatitude()),
+                                                                    options.coordinates().get(1)
+                                                            )
+                                                    )
+                                                    .alternatives(options.alternatives())
+                                                    .geometries(options.geometries())
+                                                    .steps(options.steps())
+                                                    .bannerInstructions(options.bannerInstructions())
+                                                    .voiceInstructions(options.voiceInstructions())
+                                                    .roundaboutExits(options.roundaboutExits())
+                                                    .voiceUnits(options.voiceUnits())
+                                                    .continueStraight(options.continueStraight())
+                                                    .language(options.language())
+                                                    .accessToken(options.accessToken())
+                                                    .requestUuid(options.requestUuid())
+                                                    .annotations(options.annotations())
+                                                    .overview(options.overview())
+                                                    .bearings(options.bearings())
+                                                    .build()
+                                    )
+                                    .build();
+
+                            maplibreResponse.routes().clear();
+                            maplibreResponse.routes().add(route);
+                            updateListeners(maplibreResponse, routeProgress);
+                        } // This is your code
+                    };
+                    mainHandler.post(myRunnable);
+
+                }), location.getLatitude(), location.getLongitude(), options.coordinates().get(1).latitude(), options.coordinates().get(1).longitude());
+            }
+        } catch (Exception exception) {
+            updateListenersWithError(exception);
         }
+    }
+
+    @Nullable
+    private Activity getActivityFromContext(Context context) {
+        if (context instanceof Activity) {
+            return (Activity) context;
+        }
+        return null;
     }
 
     private boolean invalid(Context context, Location location, RouteProgress routeProgress) {

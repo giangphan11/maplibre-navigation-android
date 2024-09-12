@@ -48,6 +48,8 @@
     <com.mapbox.services.android.navigation.ui.v5.instruction.InstructionView
         android:id="@+id/instructionView"
         android:layout_width="match_parent"
+        android:layout_marginHorizontal="8dp"
+        android:layout_marginTop="8dp"
         android:layout_height="wrap_content"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

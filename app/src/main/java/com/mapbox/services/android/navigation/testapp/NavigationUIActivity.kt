@@ -23,8 +23,8 @@ import com.mapbox.services.android.navigation.testapp.databinding.ActivityNaviga
 import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher
 import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationRoute
-import com.mapbox.services.android.navigation.v5.milestone.*
 import com.mapbox.services.android.navigation.v5.models.DirectionsRoute
+import com.mapbox.services.android.navigation.v5.models.RouteOptions
 import com.mapbox.services.android.navigation.v5.navigation.*
 import com.mapbox.turf.TurfConstants
 import com.mapbox.turf.TurfMeasurement
@@ -33,6 +33,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import timber.log.Timber
+import kotlin.time.Duration
 
 class NavigationUIActivity :
     AppCompatActivity(),
@@ -113,10 +114,14 @@ class NavigationUIActivity :
         )
 
         mapboxMap.addOnMapClickListener(this)
+        showSnackMessage("Tap map to place destination")
+    }
+
+    private fun showSnackMessage(message: String, duration: Int = Snackbar.LENGTH_LONG) {
         Snackbar.make(
             findViewById(R.id.container),
-            "Tap map to place waypoint",
-            Snackbar.LENGTH_LONG,
+            message,
+            duration,
         ).show()
     }
 
@@ -146,12 +151,14 @@ class NavigationUIActivity :
         var addMarker = true
         when {
             destination == null -> destination = Point.fromLngLat(point.longitude, point.latitude)
-            waypoint == null -> waypoint = Point.fromLngLat(point.longitude, point.latitude)
+            //waypoint == null -> waypoint = Point.fromLngLat(point.longitude, point.latitude)
             else -> {
-                Toast.makeText(this, "Only 2 waypoints supported", Toast.LENGTH_LONG).show()
+                //Toast.makeText(this, "Only 2 waypoints supported", Toast.LENGTH_LONG).show()
                 addMarker = false
+                return false
             }
         }
+        showSnackMessage("loading route...", Snackbar.LENGTH_SHORT)
 
         if (addMarker) {
             mapboxMap.addMarker(MarkerOptions().position(point))
@@ -179,6 +186,63 @@ class NavigationUIActivity :
             binding.startRouteLayout.visibility = View.GONE
             return
         }
+
+        // call api
+        val v = ValhallaClient()
+        v.makeRequest(
+            pickLat = userLocation.latitude,
+            pickLon = userLocation.longitude,
+            dropLat = destination.latitude(),
+            dropLon = destination.longitude(),
+            responseCallBack = { response ->
+                Timber.d("Response: %s", response)
+                runOnUiThread {
+                    if (response.isEmpty()) return@runOnUiThread
+                    val maplibreResponse = com.mapbox.services.android.navigation.v5.models.DirectionsResponse.fromJson(response)
+                    val _customRoute = maplibreResponse.routes().first()
+                    val directionsRoute = DirectionsRoute.builder()
+                        .distance(_customRoute.distance())
+                        .duration(_customRoute.duration())
+                        .geometry(_customRoute.geometry())
+                        .legs(_customRoute.legs())
+                        .weightName(_customRoute.weightName())
+                        .weight(_customRoute.weight())
+                        .routeOptions(
+                            RouteOptions
+                            .builder()
+                            .language("vi")
+                            .accessToken("getString(R.string.mapbox_access_token)")
+                            .alternatives(true)
+                            .coordinates(listOf(
+                                Point.fromLngLat(userLocation.longitude, userLocation.latitude),
+                                Point.fromLngLat(destination.longitude(), destination.latitude())
+                            ))
+                            .geometries(com.mapbox.services.android.navigation.v5.models.DirectionsCriteria.GEOMETRY_POLYLINE6)
+                            .profile(com.mapbox.services.android.navigation.v5.models.DirectionsCriteria.PROFILE_DRIVING_TRAFFIC)
+                            .steps(true)
+                            .bannerInstructions(true)
+                            .bearings(";")
+                            .requestUuid("d")
+                            .voiceUnits(DirectionsCriteria.METRIC)
+                            .voiceInstructions(true)
+                            .annotations("congestion,distance")
+                            .overview("full")
+                            .continueStraight(true)
+                            .user("mapbox")
+                            .roundaboutExits(true)
+                            .baseUrl("getString(R.string.base_url)")
+                            .build()
+                        )
+                        .build()
+                    this@NavigationUIActivity.route = directionsRoute
+
+                    navigationMapRoute?.addRoutes(maplibreResponse.routes())
+                    binding.startRouteLayout.visibility = View.VISIBLE
+                }
+
+            }
+        )
+        return
 
         val navigationRouteBuilder = NavigationRoute.builder(this).apply {
             this.accessToken(getString(R.string.mapbox_access_token))

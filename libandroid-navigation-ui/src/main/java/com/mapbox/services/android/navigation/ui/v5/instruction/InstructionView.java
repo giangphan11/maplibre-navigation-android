@@ -480,7 +480,8 @@ public class InstructionView extends RelativeLayout implements LifecycleObserver
   }
 
   private void showButtons() {
-    soundButton.show();
+    //soundButton.show();
+    soundButton.hide();
   }
 
   private void initializeStepListClickListener() {

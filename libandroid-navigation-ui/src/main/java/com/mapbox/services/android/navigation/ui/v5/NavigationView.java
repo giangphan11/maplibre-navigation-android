@@ -548,6 +548,9 @@ public class NavigationView extends CoordinatorLayout implements LifecycleOwner,
     if (initialMapCameraPosition != null) {
       map.setCameraPosition(initialMapCameraPosition);
     }
+    map.getUiSettings().setAttributionEnabled(false);
+    map.getUiSettings().setLogoEnabled(false);
+
     navigationMap = new NavigationMapboxMap(mapView, map);
     navigationMap.updateLocationLayerRenderMode(RenderMode.GPS);
     if (mapInstanceState != null) {

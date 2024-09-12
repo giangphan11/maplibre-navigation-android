@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="0dp"
     android:layout_height="wrap_content"
-    android:background="?attr/navigationViewBannerBackground"
+    android:background="@drawable/round_corner_top"
     android:elevation="6dp"
     android:foreground="?attr/selectableItemBackground"
     tools:showIn="@layout/instruction_view_layout">

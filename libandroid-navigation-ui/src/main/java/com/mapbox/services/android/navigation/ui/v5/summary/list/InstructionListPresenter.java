@@ -101,6 +101,12 @@ class InstructionListPresenter {
   private void updateManeuverView(@NonNull InstructionListView listView, BannerInstructions bannerInstructions) {
     String maneuverType = bannerInstructions.primary().type();
     String maneuverModifier = bannerInstructions.primary().modifier();
+    if(maneuverModifier == null) {
+      maneuverModifier = "NULL";
+    }
+    if(maneuverType == null){
+      maneuverType = "NULL";
+    }
     listView.updateManeuverViewTypeAndModifier(maneuverType, maneuverModifier);
 
     Double roundaboutDegrees = bannerInstructions.primary().degrees();

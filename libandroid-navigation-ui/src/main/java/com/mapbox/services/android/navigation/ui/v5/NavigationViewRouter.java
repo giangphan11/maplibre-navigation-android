@@ -72,7 +72,7 @@ public class NavigationViewRouter implements RouteListener {
       return;
     }
     NavigationRoute.Builder builder = onlineRouter.buildRequest(location, routeProgress);
-    findOnlineRouteWith(builder);
+    findOnlineRouteWith(builder, routeProgress);
   }
 
   public void updateLocation(@NonNull Location location) {
@@ -124,9 +124,9 @@ public class NavigationViewRouter implements RouteListener {
     }
   }
 
-  private void findOnlineRouteWith(NavigationRoute.Builder builder) {
+  private void findOnlineRouteWith(NavigationRoute.Builder builder, RouteProgress routeProgress) {
     onlineRouter.cancelRouteCall();
-    onlineRouter.findRouteWith(builder);
+    onlineRouter.findRouteWith(builder, location, routeProgress);
     callStatus = new RouteCallStatus(new Date());
   }
 

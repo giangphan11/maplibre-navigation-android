@@ -100,6 +100,16 @@ dependencies {
     // Separate dependencies of the app that don't need to be in the public dependencies API
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.1"
     implementation 'androidx.multidex:multidex:2.0.1'
+
+    // network
+    // define a BOM and its version
+    implementation(platform("com.squareup.okhttp3:okhttp-bom:4.12.0"))
+    // define any required OkHttp artifacts without version
+    implementation("com.squareup.okhttp3:okhttp")
+    implementation("com.squareup.okhttp3:logging-interceptor")
+
+
+
 }
 
 apply from: "${rootDir}/gradle/developer-config.gradle"

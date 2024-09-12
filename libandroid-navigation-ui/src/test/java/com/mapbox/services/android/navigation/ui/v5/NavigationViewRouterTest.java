@@ -109,7 +109,7 @@ public class NavigationViewRouterTest extends BaseTest {
 
     router.findRouteFrom(mock(RouteProgress.class));
 
-    verify(onlineRouter).findRouteWith(builder);
+    verify(onlineRouter).findRouteWith(builder, mock(Location.class), mock(RouteProgress.class));
   }
 
 
