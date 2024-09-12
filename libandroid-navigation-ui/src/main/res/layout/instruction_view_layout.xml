@@ -65,6 +65,23 @@
         android:layout_marginBottom="8dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
+        android:visibility="invisible"
+        android:layout_below="@id/extraInstructionContentLayout"/>
+
+    <TextView
+        android:id="@+id/txtSpeed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:width="45dp"
+        android:height="45dp"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:background="@drawable/bg_speed"
+        android:layout_marginBottom="8dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
         android:layout_below="@id/extraInstructionContentLayout"/>
 
 </RelativeLayout>

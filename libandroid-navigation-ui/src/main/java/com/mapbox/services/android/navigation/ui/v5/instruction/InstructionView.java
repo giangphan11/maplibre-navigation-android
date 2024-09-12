@@ -101,6 +101,7 @@ public class InstructionView extends RelativeLayout implements LifecycleObserver
   private boolean isRerouting;
   private SoundButton soundButton;
   private LifecycleOwner lifecycleOwner;
+  private TextView txtSpeed;
 
   public InstructionView(Context context) {
     this(context, null);
@@ -400,6 +401,7 @@ public class InstructionView extends RelativeLayout implements LifecycleObserver
     instructionListLayout = findViewById(R.id.instructionListLayout);
     rvInstructions = findViewById(R.id.rvInstructions);
     soundButton = findViewById(R.id.soundLayout);
+    txtSpeed = findViewById(R.id.txtSpeed);
   }
 
   /**
@@ -779,5 +781,10 @@ public class InstructionView extends RelativeLayout implements LifecycleObserver
     boolean isListShowing = instructionListLayout.getVisibility() == VISIBLE;
     rvInstructions.stopScroll();
     instructionListAdapter.updateBannerListWith(routeProgress, isListShowing);
+  }
+
+  public void updateSpeed(String speed) {
+
+    txtSpeed.setText(speed);
   }
 }

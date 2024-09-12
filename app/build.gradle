@@ -23,7 +23,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.mapbox.services.android.navigation.testapp"
+        applicationId "vn.com.giangphan.mapboxnavigation"
         minSdkVersion androidVersions.minSdkVersion
         targetSdkVersion androidVersions.targetSdkVersion
         versionCode 1

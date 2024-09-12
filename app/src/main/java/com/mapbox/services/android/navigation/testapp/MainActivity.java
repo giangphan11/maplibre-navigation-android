@@ -24,6 +24,8 @@ public class MainActivity extends AppCompatActivity implements PermissionsListen
     private PermissionsManager permissionsManager;
     private ArrayList<SampleItem> list = new ArrayList<>();
 
+    private static final int REQUEST_LOCATION_PERMISSION = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,6 +63,11 @@ public class MainActivity extends AppCompatActivity implements PermissionsListen
         if (!PermissionsManager.areLocationPermissionsGranted(this)) {
             recyclerView.setEnabled(false);
             permissionsManager.requestLocationPermissions(this);
+            permissionsManager.onRequestPermissionsResult(
+                    REQUEST_LOCATION_PERMISSION,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    new int[]{0}
+            );
         }
     }
 

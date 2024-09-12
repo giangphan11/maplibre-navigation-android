@@ -47,6 +47,8 @@ import com.mapbox.services.android.navigation.v5.navigation.NavigationTimeFormat
 import com.mapbox.services.android.navigation.v5.utils.DistanceFormatter;
 import com.mapbox.services.android.navigation.v5.utils.LocaleUtils;
 
+import java.util.Locale;
+
 /**
  * View that creates the drop-in UI.
  * <p>
@@ -705,6 +707,9 @@ public class NavigationView extends CoordinatorLayout implements LifecycleOwner,
 
     new NavigationViewSubscriber(this, navigationViewModel, navigationPresenter).subscribe();
     isSubscribed = true;
+    navigationViewModel.getSpeedPlayer().observe(this, speed -> {
+      instructionView.updateSpeed(String.format(Locale.US,"%.1f", speed));
+    });
   }
 
   @UiThread

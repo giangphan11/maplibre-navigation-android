@@ -79,8 +79,9 @@ dependencies {
   implementation dependenciesList.androidxRecyclerView
   implementation dependenciesList.androidxConstraintLayout
   implementation dependenciesList.androidxCardView
+  implementation 'com.google.android.gms:play-services-location:21.3.0'
 
-  // AutoValues
+    // AutoValues
   annotationProcessor dependenciesList.autoValue
   implementation dependenciesList.autoValueAnnotations
 
