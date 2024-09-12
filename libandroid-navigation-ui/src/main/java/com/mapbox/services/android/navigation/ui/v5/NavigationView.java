@@ -394,6 +394,10 @@ public class NavigationView extends CoordinatorLayout implements LifecycleOwner,
    */
   public void startNavigation(NavigationViewOptions options) {
     initializeNavigation(options);
+    // if simulation is enabled, we need to start the location engine
+    if (options.shouldSimulateRoute()) {
+      instructionView.updateSpeed(ReplayRouteLocationEngine.FORTY_FIVE_KM_PER_HOUR + "");
+    }
   }
 
   /**
@@ -632,7 +636,7 @@ public class NavigationView extends CoordinatorLayout implements LifecycleOwner,
     if (!isSubscribed) {
       initializeClickListeners();
       initializeOnCameraTrackingChangedListener();
-      subscribeViewModels();
+      subscribeViewModels(options);
     }
   }
 
@@ -701,12 +705,16 @@ public class NavigationView extends CoordinatorLayout implements LifecycleOwner,
    * The subscriber then subscribes to the view models, setting up the appropriate presenter / listener
    * method calls based on the {@link androidx.lifecycle.LiveData} updates.
    */
-  private void subscribeViewModels() {
+  private void subscribeViewModels(NavigationViewOptions options) {
     instructionView.subscribe(this, navigationViewModel);
     summaryBottomSheet.subscribe(this, navigationViewModel);
 
     new NavigationViewSubscriber(this, navigationViewModel, navigationPresenter).subscribe();
     isSubscribed = true;
+    // check if we need to simulate the route
+    if (options.shouldSimulateRoute()) {
+      return;
+    }
     navigationViewModel.getSpeedPlayer().observe(this, speed -> {
       instructionView.updateSpeed(String.format(Locale.US,"%.1f", speed));
     });

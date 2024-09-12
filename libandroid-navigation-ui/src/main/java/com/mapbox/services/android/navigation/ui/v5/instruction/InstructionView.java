@@ -784,7 +784,6 @@ public class InstructionView extends RelativeLayout implements LifecycleObserver
   }
 
   public void updateSpeed(String speed) {
-
     txtSpeed.setText(speed);
   }
 }

@@ -1,7 +1,8 @@
 package com.mapbox.services.android.navigation.ui.v5;
 
-import static androidx.core.app.ActivityCompat.requestPermissions;
+import static android.content.Context.LOCATION_SERVICE;
 import static androidx.core.content.ContextCompat.checkSelfPermission;
+import android.location.LocationListener;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -9,16 +10,13 @@ import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.location.engine.LocationEngine;
 import com.mapbox.services.android.navigation.ui.v5.camera.DynamicCamera;
@@ -87,7 +85,8 @@ public class NavigationViewModel extends AndroidViewModel {
     private boolean isChangingConfigurations;
     private MapConnectivityController connectivityController;
 
-    private FusedLocationProviderClient fusedLocationClient;
+    private LocationManager locationManager;
+    private LocationListener locationListener;
     private final MutableLiveData<Float> speedPlayer = new MutableLiveData<>();
     public final LiveData<Float> getSpeedPlayer() {
         return speedPlayer;
@@ -100,11 +99,11 @@ public class NavigationViewModel extends AndroidViewModel {
         this.routeUtils = new RouteUtils();
         this.localeUtils = new LocaleUtils();
         this.connectivityController = new MapConnectivityController();
-//        fusedLocationClient = LocationServices.getFusedLocationProviderClient(application.getApplicationContext());
-//
-//        if (checkSelfPermission(application.getApplicationContext(),Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-//            getLastLocation();
-//        }
+        locationManager = (LocationManager) application.getApplicationContext().getSystemService(LOCATION_SERVICE);
+
+        if (checkSelfPermission(application.getApplicationContext(),Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            getLastLocation();
+        }
     }
 
     @TestOnly
@@ -133,6 +132,9 @@ public class NavigationViewModel extends AndroidViewModel {
     protected void onCleared() {
         super.onCleared();
         destroyRouter();
+        locationManager.removeUpdates(locationListener);
+        locationListener = null;
+        locationManager = null;
     }
 
     public void onDestroy(boolean isChangingConfigurations) {
@@ -485,17 +487,22 @@ public class NavigationViewModel extends AndroidViewModel {
 
     @SuppressLint("MissingPermission")
     private void getLastLocation() {
-        fusedLocationClient.getLastLocation()
-                .addOnSuccessListener((location -> {
-                    speedPlayer.setValue(0f);
-                            if (location != null) {
-                                // km/h
-                                // round to 1 decimal place
+        locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                speedPlayer.setValue(0f);
+                if (location != null) {
+                    // Speed is in meters/second
+                    float speed = location.hasSpeed() ? location.getSpeed() : 0;
+                    // Convert speed to kilometers per hour (km/h)
+                    float speedInKmh = speed * 3.6f;
+                    speedPlayer.setValue(speedInKmh);
+                }
+            }
+        };
 
-                                speedPlayer.setValue(location.getSpeed() * 3.6f);
-                            }
-                        })
-                );
+        // Request location updates from the GPS provider
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, locationListener);
     }
 
 
