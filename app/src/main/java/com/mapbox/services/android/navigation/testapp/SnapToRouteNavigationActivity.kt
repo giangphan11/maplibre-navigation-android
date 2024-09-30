@@ -125,7 +125,7 @@ class SnapToRouteNavigationActivity : AppCompatActivity(), OnMapReadyCallback,
     private fun calculateRouteAndStartNavigation() {
         val navigationRouteBuilder = NavigationRoute.builder(this).apply {
             this.accessToken(getString(R.string.mapbox_access_token))
-            this.origin(Point.fromLngLat(9.7536318, 52.3717979))
+            this.origin(Point.fromLngLat(21.049316, 105.911593))
             this.addWaypoint(Point.fromLngLat(9.741052, 52.360496))
             this.destination(Point.fromLngLat(9.756259, 52.342620))
             this.voiceUnits(com.mapbox.services.android.navigation.v5.models.DirectionsCriteria.METRIC)

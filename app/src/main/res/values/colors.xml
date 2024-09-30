@@ -5,4 +5,7 @@
     <color name="colorAccent">#B692C2</color>
     <color name="red">#FF204E</color>
     <color name="white">#FFFFFF</color>
+
+    <color name="location_dot">#536dfe</color>
+    <color name="quest_selection_frame">#bbFF5722</color>
 </resources>

@@ -47,17 +47,17 @@ public class NavigationAlertView extends AlertView {
    * Shows this alert view to let user report a problem for the given number of milliseconds
    */
   public void showReportProblem() {
-    if (!isEnabled) {
-      return;
-    }
-    final Handler handler = new Handler();
-    handler.postDelayed(new Runnable() {
-      @Override
-      public void run() {
-        show(getContext().getString(R.string.report_problem),
-          NavigationConstants.ALERT_VIEW_PROBLEM_DURATION, true);
-      }
-    }, THREE_SECOND_DELAY_IN_MILLIS);
+//    if (!isEnabled) {
+//      return;
+//    }
+//    final Handler handler = new Handler();
+//    handler.postDelayed(new Runnable() {
+//      @Override
+//      public void run() {
+//        show(getContext().getString(R.string.report_problem),
+//          NavigationConstants.ALERT_VIEW_PROBLEM_DURATION, true);
+//      }
+//    }, THREE_SECOND_DELAY_IN_MILLIS);
   }
 
 

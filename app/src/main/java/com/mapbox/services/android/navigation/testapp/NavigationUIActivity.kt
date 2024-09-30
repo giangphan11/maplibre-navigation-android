@@ -1,10 +1,13 @@
 package com.mapbox.services.android.navigation.testapp
 
 import android.annotation.SuppressLint
+import android.hardware.SensorManager
+import android.location.Location
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.getSystemService
 import com.google.android.material.snackbar.Snackbar
 import com.mapbox.api.directions.v5.DirectionsCriteria
 import com.mapbox.api.directions.v5.models.DirectionsResponse
@@ -20,6 +23,11 @@ import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.services.android.navigation.testapp.databinding.ActivityNavigationUiBinding
+import com.mapbox.services.android.navigation.testapp.helpers.Compass
+import com.mapbox.services.android.navigation.testapp.helpers.CurrentLocationMapComponent
+import com.mapbox.services.android.navigation.testapp.helpers.currentDisplay
+import com.mapbox.services.android.navigation.testapp.helpers.location.FineLocationManager
+import com.mapbox.services.android.navigation.testapp.helpers.maplibre.camera
 import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher
 import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationRoute
@@ -33,6 +41,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import timber.log.Timber
+import kotlin.math.PI
 import kotlin.time.Duration
 
 class NavigationUIActivity :
@@ -52,6 +61,10 @@ class NavigationUIActivity :
 
     private var simulateRoute = false
 
+    private var locationMapComponent: CurrentLocationMapComponent? = null
+    private lateinit var locationManager: FineLocationManager
+    private lateinit var compass: Compass
+
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,6 +79,8 @@ class NavigationUIActivity :
             onCreate(savedInstanceState)
             getMapAsync(this@NavigationUIActivity)
         }
+
+        locationManager = FineLocationManager(applicationContext, this::onLocationChanged)
 
         binding.startRouteButton.setOnClickListener {
             route?.let { route ->
@@ -100,6 +115,31 @@ class NavigationUIActivity :
 
             navigationMapRoute?.removeRoute()
         }
+
+        startPositionTracking()
+
+        compass = Compass(
+            getSystemService<SensorManager>()!!,
+            currentDisplay,
+            this::onCompassRotationChanged
+        )
+        lifecycle.addObserver(compass)
+
+    }
+
+    private fun onLocationChanged(location: Location) {
+        locationMapComponent?.targetLocation = location
+        compass.setLocation(location)
+    }
+
+    private fun onCompassRotationChanged(rot: Float, tilt: Float) {
+        locationMapComponent?.rotation = (rot * 180 / PI) - (mapboxMap.camera.rotation)
+    }
+
+    @SuppressLint("MissingPermission")
+    fun startPositionTracking() {
+        locationMapComponent?.isVisible = true
+        locationManager.requestUpdates(0, 5000, 1f)
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
@@ -114,7 +154,7 @@ class NavigationUIActivity :
         )
 
         mapboxMap.addOnMapClickListener(this)
-        showSnackMessage("Tap map to place destination")
+
     }
 
     private fun showSnackMessage(message: String, duration: Int = Snackbar.LENGTH_LONG) {
@@ -129,6 +169,16 @@ class NavigationUIActivity :
     private fun enableLocationComponent(style: Style) {
         // Get an instance of the component
         locationComponent = mapboxMap.locationComponent
+
+        locationMapComponent = CurrentLocationMapComponent(applicationContext , style, this.mapboxMap)
+        lifecycle.addObserver(locationMapComponent!!)
+//
+//        // these are always on top of everything else (including labels)
+        for (layer in listOfNotNull(
+            locationMapComponent?.layers,
+        ).flatten()) {
+            style.addLayer(layer)
+        }
 
         locationComponent?.let {
             // Activate with a built LocationComponentActivationOptions object
