@@ -40,11 +40,17 @@ public class MainActivity extends AppCompatActivity implements PermissionsListen
         recyclerView.setLayoutManager(layoutManager);
 
         // Specify an adapter
+
 //        list.add(new SampleItem(
 //                getString(R.string.title_mock_navigation),
 //                getString(R.string.description_mock_navigation),
 //                MockNavigationActivity.class
 //        ));
+        list.add(new SampleItem(
+            getString(R.string.title_valhalla_navigation),
+            getString(R.string.description_vallhalla_navigation),
+            ValhallaNavigationActivity.class
+        ));
         list.add(new SampleItem(
             getString(R.string.title_navigation_ui),
             getString(R.string.description_navigation_ui),
