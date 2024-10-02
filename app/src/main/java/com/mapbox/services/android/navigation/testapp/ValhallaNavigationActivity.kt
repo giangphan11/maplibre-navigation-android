@@ -72,7 +72,11 @@ class ValhallaNavigationActivity :
                 val options = NavigationLauncherOptions.builder()
                     .directionsRoute(route)
                     .shouldSimulateRoute(simulateRoute)
-                    .initialMapCameraPosition(CameraPosition.Builder().target(LatLng(userLocation.latitude, userLocation.longitude)).build())
+                    .initialMapCameraPosition(
+                        CameraPosition.Builder().target(LatLng(userLocation.latitude,
+                            userLocation.longitude))
+                            .zoom(16.0)
+                            .build())
                     .lightThemeResId(R.style.TestNavigationViewLight)
                     .darkThemeResId(R.style.TestNavigationViewDark)
                     .build()
@@ -140,6 +144,10 @@ class ValhallaNavigationActivity :
     }
 
     override fun onMapClick(point: LatLng): Boolean {
+        if(destination != null){
+            return false
+        }
+
         destination = Point.fromLngLat(point.longitude, point.latitude)
 
         mapboxMap.addMarker(MarkerOptions().position(point))

@@ -164,7 +164,9 @@ public final class NavigationConstants {
     /**
      * Defines the minimum zoom level of the displayed map.
      */
-    public static final double NAVIGATION_MINIMUM_MAP_ZOOM = 7d;
+    public static final double NAVIGATION_MINIMUM_MAP_ZOOM = 10d;
+
+    public static final double NAVIGATION_MAXIMUM_MAP_ZOOM = 20d;
 
     /**
      * Maximum duration of the zoom/tilt adjustment animation while tracking.

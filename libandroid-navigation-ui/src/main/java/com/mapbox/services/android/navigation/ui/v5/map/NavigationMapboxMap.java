@@ -1,6 +1,7 @@
 package com.mapbox.services.android.navigation.ui.v5.map;
 
 import static com.mapbox.services.android.navigation.ui.v5.map.NavigationSymbolManager.MAPBOX_NAVIGATION_MARKER_NAME;
+import static com.mapbox.services.android.navigation.v5.navigation.NavigationConstants.NAVIGATION_MAXIMUM_MAP_ZOOM;
 import static com.mapbox.services.android.navigation.v5.navigation.NavigationConstants.NAVIGATION_MINIMUM_MAP_ZOOM;
 
 import android.annotation.SuppressLint;
@@ -62,7 +63,6 @@ public class NavigationMapboxMap {
   private static final String INCIDENTS_LAYER_ID = "closures";
   private static final String TRAFFIC_LAYER_ID = "traffic";
   private static final int[] ZERO_MAP_PADDING = {0, 0, 0, 0};
-  private static final double NAVIGATION_MAXIMUM_MAP_ZOOM = 18d;
   private final CopyOnWriteArrayList<OnWayNameChangedListener> onWayNameChangedListeners
     = new CopyOnWriteArrayList<>();
   private final MapWayNameChangedListener internalWayNameChangedListener
